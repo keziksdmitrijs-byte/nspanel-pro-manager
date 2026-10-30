@@ -1,0 +1,159 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add NSPanel Pro",
+        "description": "Enable ADB on the panel (developer mode in eWeLink), enter its IP address and submit. If the panel shows “Allow USB debugging?”, tick “Always allow” and press OK within 30 seconds.",
+        "data": {
+          "host": "IP address",
+          "name": "Name",
+          "dashboard_path": "Dashboard path",
+          "provision": "Set up the panel now",
+          "port": "ADB port"
+        },
+        "data_description": {
+          "host": "For example 192.168.1.87",
+          "dashboard_path": "Dashboard opened on the panel, e.g. nspanel-pro/home",
+          "provision": "Install Home Assistant Companion and NSPanel Pro Tools and apply all settings"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect. Check the IP address and that ADB over network (port 5555) is enabled.",
+      "auth": "The panel did not allow debugging. Accept the prompt on the panel screen and try again."
+    },
+    "abort": {
+      "already_configured": "This panel is already added."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Panel options",
+        "data": {
+          "dashboard_path": "Dashboard path",
+          "mqtt_host": "MQTT broker address",
+          "mqtt_port": "MQTT broker port",
+          "companion_package": "Home Assistant app package",
+          "install_companion": "Install Home Assistant Companion when missing",
+          "install_tools": "Install NSPanel Pro Tools when missing"
+        },
+        "data_description": {
+          "mqtt_host": "Empty = IP address of this Home Assistant"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "connected": {
+        "name": "ADB connection"
+      },
+      "screen": {
+        "name": "Screen"
+      },
+      "provisioning": {
+        "name": "Setup running"
+      }
+    },
+    "button": {
+      "open_dashboard": {
+        "name": "Open dashboard"
+      },
+      "restart_app": {
+        "name": "Restart Home Assistant app"
+      },
+      "screen_on": {
+        "name": "Screen on"
+      },
+      "screen_off": {
+        "name": "Screen off"
+      },
+      "reboot": {
+        "name": "Reboot"
+      },
+      "open_tools": {
+        "name": "Open NSPanel Pro Tools"
+      },
+      "provision": {
+        "name": "Set up panel"
+      }
+    },
+    "number": {
+      "brightness": {
+        "name": "Screen brightness"
+      },
+      "dim_brightness": {
+        "name": "Screensaver brightness"
+      },
+      "screensaver_timeout": {
+        "name": "Screensaver after"
+      }
+    },
+    "sensor": {
+      "ip_address": {
+        "name": "IP address"
+      },
+      "last_boot": {
+        "name": "Last boot"
+      },
+      "screen_brightness": {
+        "name": "Brightness (raw)"
+      },
+      "companion_version": {
+        "name": "Home Assistant app version"
+      },
+      "tools_version": {
+        "name": "NSPanel Pro Tools version"
+      },
+      "webview_version": {
+        "name": "WebView version"
+      },
+      "foreground_app": {
+        "name": "Foreground app"
+      }
+    },
+    "switch": {
+      "system_controls": {
+        "name": "Control buttons and circle"
+      },
+      "screensaver": {
+        "name": "Screensaver"
+      },
+      "nightly_reboot": {
+        "name": "Nightly reboot"
+      }
+    },
+    "time": {
+      "reboot_time": {
+        "name": "Reboot time"
+      }
+    }
+  },
+  "services": {
+    "shell": {
+      "name": "Run ADB command",
+      "description": "Run a shell command on NSPanel Pro panels and return the output.",
+      "fields": {
+        "device_id": {
+          "name": "Panels",
+          "description": "Empty = all panels"
+        },
+        "command": {
+          "name": "Command",
+          "description": "Shell command"
+        }
+      }
+    },
+    "provision": {
+      "name": "Set up panel",
+      "description": "Install apps and apply all settings to NSPanel Pro panels.",
+      "fields": {
+        "device_id": {
+          "name": "Panels",
+          "description": "Empty = all panels"
+        }
+      }
+    }
+  }
+}

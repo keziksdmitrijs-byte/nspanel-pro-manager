@@ -1,0 +1,159 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Добавить NSPanel Pro",
+        "description": "Включите ADB на панели (режим разработчика в eWeLink), введите её IP-адрес и нажмите «Отправить». Если на панели появится «Разрешить отладку по USB?», отметьте «Всегда разрешать» и нажмите OK в течение 30 секунд.",
+        "data": {
+          "host": "IP-адрес",
+          "name": "Название",
+          "dashboard_path": "Путь дашборда",
+          "provision": "Настроить панель сейчас",
+          "port": "Порт ADB"
+        },
+        "data_description": {
+          "host": "Например 192.168.1.87",
+          "dashboard_path": "Дашборд, который открывается на панели, например nspanel-pro/home",
+          "provision": "Установить Home Assistant Companion и NSPanel Pro Tools и применить все настройки"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Не удалось подключиться. Проверьте IP-адрес и что включён ADB по сети (порт 5555).",
+      "auth": "Панель не разрешила отладку. Подтвердите запрос на экране панели и попробуйте снова."
+    },
+    "abort": {
+      "already_configured": "Эта панель уже добавлена."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Настройки панели",
+        "data": {
+          "dashboard_path": "Путь дашборда",
+          "mqtt_host": "Адрес MQTT-брокера",
+          "mqtt_port": "Порт MQTT-брокера",
+          "companion_package": "Пакет приложения Home Assistant",
+          "install_companion": "Устанавливать Home Assistant Companion, если его нет",
+          "install_tools": "Устанавливать NSPanel Pro Tools, если его нет"
+        },
+        "data_description": {
+          "mqtt_host": "Пусто = IP-адрес этого Home Assistant"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "connected": {
+        "name": "Связь по ADB"
+      },
+      "screen": {
+        "name": "Экран"
+      },
+      "provisioning": {
+        "name": "Идёт настройка"
+      }
+    },
+    "button": {
+      "open_dashboard": {
+        "name": "Открыть дашборд"
+      },
+      "restart_app": {
+        "name": "Перезапустить приложение HA"
+      },
+      "screen_on": {
+        "name": "Включить экран"
+      },
+      "screen_off": {
+        "name": "Выключить экран"
+      },
+      "reboot": {
+        "name": "Перезагрузить"
+      },
+      "open_tools": {
+        "name": "Открыть NSPanel Pro Tools"
+      },
+      "provision": {
+        "name": "Настроить панель"
+      }
+    },
+    "number": {
+      "brightness": {
+        "name": "Яркость экрана"
+      },
+      "dim_brightness": {
+        "name": "Яркость на заставке"
+      },
+      "screensaver_timeout": {
+        "name": "Заставка через"
+      }
+    },
+    "sensor": {
+      "ip_address": {
+        "name": "IP-адрес"
+      },
+      "last_boot": {
+        "name": "Последняя загрузка"
+      },
+      "screen_brightness": {
+        "name": "Яркость (0–255)"
+      },
+      "companion_version": {
+        "name": "Версия приложения HA"
+      },
+      "tools_version": {
+        "name": "Версия NSPanel Pro Tools"
+      },
+      "webview_version": {
+        "name": "Версия WebView"
+      },
+      "foreground_app": {
+        "name": "Активное приложение"
+      }
+    },
+    "switch": {
+      "system_controls": {
+        "name": "Кнопки управления и круг"
+      },
+      "screensaver": {
+        "name": "Заставка"
+      },
+      "nightly_reboot": {
+        "name": "Ночная перезагрузка"
+      }
+    },
+    "time": {
+      "reboot_time": {
+        "name": "Время перезагрузки"
+      }
+    }
+  },
+  "services": {
+    "shell": {
+      "name": "Выполнить ADB-команду",
+      "description": "Выполняет shell-команду на панелях NSPanel Pro и возвращает вывод.",
+      "fields": {
+        "device_id": {
+          "name": "Панели",
+          "description": "Пусто = все панели"
+        },
+        "command": {
+          "name": "Команда",
+          "description": "Shell-команда"
+        }
+      }
+    },
+    "provision": {
+      "name": "Настроить панель",
+      "description": "Устанавливает приложения и применяет все настройки на панелях NSPanel Pro.",
+      "fields": {
+        "device_id": {
+          "name": "Панели",
+          "description": "Пусто = все панели"
+        }
+      }
+    }
+  }
+}

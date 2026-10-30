@@ -1,0 +1,159 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Pievienot NSPanel Pro",
+        "description": "Ieslēdziet ADB panelī (izstrādātāja režīms eWeLink), ievadiet tā IP adresi un nospiediet “Iesniegt”. Ja panelī parādās “Atļaut USB atkļūdošanu?”, atzīmējiet “Vienmēr atļaut” un 30 sekunžu laikā nospiediet OK.",
+        "data": {
+          "host": "IP adrese",
+          "name": "Nosaukums",
+          "dashboard_path": "Paneļa ceļš",
+          "provision": "Iestatīt paneli tagad",
+          "port": "ADB ports"
+        },
+        "data_description": {
+          "host": "Piemēram 192.168.1.87",
+          "dashboard_path": "Panelī atveramais informācijas panelis, piem. nspanel-pro/home",
+          "provision": "Instalēt Home Assistant Companion un NSPanel Pro Tools un piemērot visus iestatījumus"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Neizdevās pieslēgties. Pārbaudiet IP adresi un vai ir ieslēgts ADB tīklā (ports 5555).",
+      "auth": "Panelis neatļāva atkļūdošanu. Apstipriniet pieprasījumu paneļa ekrānā un mēģiniet vēlreiz."
+    },
+    "abort": {
+      "already_configured": "Šis panelis jau ir pievienots."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Paneļa iestatījumi",
+        "data": {
+          "dashboard_path": "Paneļa ceļš",
+          "mqtt_host": "MQTT brokera adrese",
+          "mqtt_port": "MQTT brokera ports",
+          "companion_package": "Home Assistant lietotnes pakotne",
+          "install_companion": "Instalēt Home Assistant Companion, ja tā nav",
+          "install_tools": "Instalēt NSPanel Pro Tools, ja tā nav"
+        },
+        "data_description": {
+          "mqtt_host": "Tukšs = šī Home Assistant IP adrese"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "connected": {
+        "name": "ADB savienojums"
+      },
+      "screen": {
+        "name": "Ekrāns"
+      },
+      "provisioning": {
+        "name": "Notiek iestatīšana"
+      }
+    },
+    "button": {
+      "open_dashboard": {
+        "name": "Atvērt paneli"
+      },
+      "restart_app": {
+        "name": "Restartēt HA lietotni"
+      },
+      "screen_on": {
+        "name": "Ieslēgt ekrānu"
+      },
+      "screen_off": {
+        "name": "Izslēgt ekrānu"
+      },
+      "reboot": {
+        "name": "Restartēt"
+      },
+      "open_tools": {
+        "name": "Atvērt NSPanel Pro Tools"
+      },
+      "provision": {
+        "name": "Iestatīt paneli"
+      }
+    },
+    "number": {
+      "brightness": {
+        "name": "Ekrāna spilgtums"
+      },
+      "dim_brightness": {
+        "name": "Spilgtums ekrānsaudzētājā"
+      },
+      "screensaver_timeout": {
+        "name": "Ekrānsaudzētājs pēc"
+      }
+    },
+    "sensor": {
+      "ip_address": {
+        "name": "IP adrese"
+      },
+      "last_boot": {
+        "name": "Pēdējā ielāde"
+      },
+      "screen_brightness": {
+        "name": "Spilgtums (0–255)"
+      },
+      "companion_version": {
+        "name": "HA lietotnes versija"
+      },
+      "tools_version": {
+        "name": "NSPanel Pro Tools versija"
+      },
+      "webview_version": {
+        "name": "WebView versija"
+      },
+      "foreground_app": {
+        "name": "Aktīvā lietotne"
+      }
+    },
+    "switch": {
+      "system_controls": {
+        "name": "Vadības pogas un aplis"
+      },
+      "screensaver": {
+        "name": "Ekrānsaudzētājs"
+      },
+      "nightly_reboot": {
+        "name": "Nakts restartēšana"
+      }
+    },
+    "time": {
+      "reboot_time": {
+        "name": "Restartēšanas laiks"
+      }
+    }
+  },
+  "services": {
+    "shell": {
+      "name": "Izpildīt ADB komandu",
+      "description": "Izpilda shell komandu NSPanel Pro paneļos un atgriež izvadi.",
+      "fields": {
+        "device_id": {
+          "name": "Paneļi",
+          "description": "Tukšs = visi paneļi"
+        },
+        "command": {
+          "name": "Komanda",
+          "description": "Shell komanda"
+        }
+      }
+    },
+    "provision": {
+      "name": "Iestatīt paneli",
+      "description": "Instalē lietotnes un piemēro visus iestatījumus NSPanel Pro paneļos.",
+      "fields": {
+        "device_id": {
+          "name": "Paneļi",
+          "description": "Tukšs = visi paneļi"
+        }
+      }
+    }
+  }
+}
