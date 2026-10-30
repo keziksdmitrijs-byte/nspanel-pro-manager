@@ -419,6 +419,8 @@ class NSPanel:
                     )
                     values += [float(v) for v in re.findall(r"\) ([0-9.]+),", out)]
                     await asyncio.sleep(1)
+        except AdbError as err:
+            _LOGGER.warning("Proximity measurement on %s failed: %s", self.adb.host, err)
         finally:
             self.measuring = False
         if values:
@@ -428,8 +430,12 @@ class NSPanel:
                 "min": min(values),
                 "idle": idle,
                 "samples": len(values),
+                # a hand gives a clear peak well above the background noise
+                "hand_detected": max(values) >= idle * 2 + 20,
                 # halfway between background noise and the hand
-                "suggested_threshold": round(idle + (max(values) - idle) / 2),
+                "suggested_threshold": round(idle + (max(values) - idle) / 2)
+                if max(values) >= idle * 2 + 20
+                else None,
                 "measured_at": dt_util.utcnow().isoformat(timespec="seconds"),
             }
         self.coordinator.async_update_listeners()
