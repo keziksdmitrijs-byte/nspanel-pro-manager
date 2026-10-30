@@ -1,0 +1,21 @@
+shell:
+  fields:
+    device_id:
+      required: false
+      selector:
+        device:
+          integration: nspanel_pro
+          multiple: true
+    command:
+      required: true
+      example: "settings get system screen_brightness"
+      selector:
+        text:
+provision:
+  fields:
+    device_id:
+      required: false
+      selector:
+        device:
+          integration: nspanel_pro
+          multiple: true
