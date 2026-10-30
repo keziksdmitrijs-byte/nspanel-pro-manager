@@ -45,6 +45,8 @@ A panel that is already set up can be added the same way — nothing is reinstal
 | Number *Screensaver after* | Inactivity time in seconds (Tools supports 15 s … 30 min, the nearest value is used) |
 | Number *Screen brightness* / *Screensaver brightness* | Brightness in % |
 | Switch *Nightly reboot* + Time *Reboot time* | Reboot every night |
+| Number *Proximity threshold* | Wake-on-wave sensitivity: raw sensor value above which a wave is detected. Lower = more sensitive, higher = you must come closer. `0` = NSPanel Pro Tools default |
+| Button *Measure proximity (10 s)* + sensor *Proximity peak* | Press, then wave your hand at the distance that should wake the panel. The sensor shows the peak, the background level (`idle`) and a `suggested_threshold` |
 | Buttons | Open dashboard, Restart Home Assistant app, Screen on/off, Reboot, Open NSPanel Pro Tools, Set up panel |
 | Binary sensors | ADB connection, Screen, Setup running |
 | Diagnostic sensors | IP address, Last boot, raw brightness, app / Tools / WebView versions, foreground app |
@@ -57,6 +59,12 @@ screensaver:
   enabled_entity: switch.nspanel_pro_screensaver
   timeout_entity: number.nspanel_pro_screensaver_after
 ```
+
+### Proximity sensitivity
+
+1. Press **Measure proximity (10 s)** and during 10 seconds wave your hand at the distance from which the panel should wake up.
+2. Look at **Proximity peak**: the state is the highest value, attribute `idle` is the background noise (about 25–35 on NSPanel Pro 86), `suggested_threshold` is halfway between them.
+3. Set **Proximity threshold** to the suggested value (or a bit lower for more sensitivity). The value must stay clearly above `idle`, otherwise the panel wakes up by itself.
 
 ## Services
 
@@ -110,6 +118,14 @@ response_variable: out
 ## Сущности
 
 Переключатели «Кнопки управления и круг», «Заставка», «Ночная перезагрузка»; числа «Яркость экрана», «Яркость на заставке», «Заставка через»; время «Время перезагрузки»; кнопки «Открыть дашборд», «Перезапустить приложение HA», «Включить/Выключить экран», «Перезагрузить», «Открыть NSPanel Pro Tools», «Настроить панель»; датчики связи, экрана, настройки и диагностические датчики (IP, последняя загрузка, версии приложений, WebView).
+
+### Чувствительность датчика приближения
+
+Число «Порог приближения» — значение датчика, выше которого считается, что поднесли руку. Меньше — чувствительнее (срабатывает издалека), больше — нужно подойти ближе. `0` — значение по умолчанию NSPanel Pro Tools.
+
+1. Нажмите «Измерить приближение (10 с)» и в течение 10 секунд помашите рукой на том расстоянии, с которого панель должна просыпаться.
+2. Датчик «Пик приближения» покажет максимум, атрибут `idle` — фоновый уровень (около 25–35), `suggested_threshold` — рекомендуемый порог посередине.
+3. Впишите рекомендуемое значение в «Порог приближения». Порог должен быть заметно выше `idle`, иначе панель будет просыпаться сама.
 
 ## Службы
 
