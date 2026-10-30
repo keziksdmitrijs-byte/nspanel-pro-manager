@@ -77,6 +77,9 @@
       },
       "provision": {
         "name": "Настроить панель"
+      },
+      "measure_proximity": {
+        "name": "Измерить приближение (10 с)"
       }
     },
     "number": {
@@ -88,6 +91,9 @@
       },
       "screensaver_timeout": {
         "name": "Заставка через"
+      },
+      "proximity_threshold": {
+        "name": "Порог приближения"
       }
     },
     "sensor": {
@@ -111,6 +117,12 @@
       },
       "foreground_app": {
         "name": "Активное приложение"
+      },
+      "proximity": {
+        "name": "Датчик приближения"
+      },
+      "proximity_peak": {
+        "name": "Пик приближения"
       }
     },
     "switch": {

@@ -77,6 +77,9 @@
       },
       "provision": {
         "name": "Iestatīt paneli"
+      },
+      "measure_proximity": {
+        "name": "Mērīt tuvumu (10 s)"
       }
     },
     "number": {
@@ -88,6 +91,9 @@
       },
       "screensaver_timeout": {
         "name": "Ekrānsaudzētājs pēc"
+      },
+      "proximity_threshold": {
+        "name": "Tuvuma slieksnis"
       }
     },
     "sensor": {
@@ -111,6 +117,12 @@
       },
       "foreground_app": {
         "name": "Aktīvā lietotne"
+      },
+      "proximity": {
+        "name": "Tuvuma sensors"
+      },
+      "proximity_peak": {
+        "name": "Tuvuma maksimums"
       }
     },
     "switch": {
