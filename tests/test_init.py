@@ -33,7 +33,9 @@ class FakeAdb:
         if "getprop ro.serialno" in command:
             return "S=ABCDEF123456\nM=NSPanel Pro\nFW=1.0\nA=8.1.0\nR=0\nVC=2026.10.1-minimal\nVT=2.3.4\nVW=120.0.1"
         if "mWakefulness" in command:
-            return "W=Awake\nB=135\nU=3600.5\nIP=192.168.1.87\nC=null\nP=immersive.full=*\nF=io.homeassistant.companion.android.minimal"
+            return "W=Awake\nB=135\nU=3600.5\nIP=192.168.1.87\nC=null\nP=immersive.full=*\nF=io.homeassistant.companion.android.minimal\nPX=27.00"
+        if "getevent" in command:
+            return "0003 0019 0000001a\n0000 0000 00000000\n0003 0019 00000020\n0003 0019 000001f4\n0003 0019 0000001c"
         if command.startswith("su 0 cat"):
             return PREFS
         if "grep mqtt-username" in command:
@@ -96,6 +98,20 @@ async def test_flow_and_setup(hass: HomeAssistant):
         await hass.async_block_till_done()
         print("\n".join(COMMANDS[:40]))
         assert hass.states.get(tm[0]).state == "04:15:00"
+
+        # proximity
+        assert hass.states.get("sensor.nspanel_pro_proximity_sensor").state == "27.0"
+        await hass.services.async_call("button", "press", {"entity_id": "button.nspanel_pro_measure_proximity_10_s"}, blocking=True)
+        await hass.async_block_till_done()
+        peak = hass.states.get("sensor.nspanel_pro_proximity_peak")
+        print(peak)
+        assert peak.state == "500.0"
+        assert peak.attributes["idle"] == 28.0
+        COMMANDS.clear()
+        await hass.services.async_call("number", "set_value", {"entity_id": "number.nspanel_pro_proximity_threshold", "value": 250}, blocking=True)
+        written = [c for c in COMMANDS if "base64 -d" in c]
+        xml = base64.b64decode(re.search(r"echo (\S+) \| base64", written[0]).group(1)).decode()
+        assert '<int name="proximity-sensor-threshold" value="250" />' in xml
 
         # options flow
         result = await hass.config_entries.options.async_init(entry.entry_id)
