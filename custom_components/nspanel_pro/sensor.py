@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, SensorStateClass
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
@@ -19,6 +19,8 @@ SENSORS = (
     ("tools_version", "mdi:tools", None, EntityCategory.DIAGNOSTIC),
     ("webview_version", "mdi:web", None, EntityCategory.DIAGNOSTIC),
     ("foreground_app", "mdi:application", None, EntityCategory.DIAGNOSTIC),
+    ("proximity", "mdi:hand-wave", None, EntityCategory.DIAGNOSTIC),
+    ("proximity_peak", "mdi:chart-bell-curve", None, EntityCategory.DIAGNOSTIC),
 )
 
 
@@ -38,6 +40,8 @@ class NSPanelSensor(NSPanelEntity, SensorEntity):
         self._attr_icon = icon
         self._attr_device_class = device_class
         self._attr_entity_category = category
+        if key in ("proximity", "proximity_peak"):
+            self._attr_state_class = SensorStateClass.MEASUREMENT if key == "proximity" else None
 
     @property
     def native_value(self):
@@ -57,4 +61,23 @@ class NSPanelSensor(NSPanelEntity, SensorEntity):
             return info.webview
         if self._key == "foreground_app":
             return st.foreground if st else None
+        if self._key == "proximity":
+            return st.proximity if st else None
+        if self._key == "proximity_peak":
+            m = self.panel.proximity_measure
+            return m["max"] if m else None
+        return None
+
+    @property
+    def available(self) -> bool:
+        if self._key == "proximity_peak":
+            return True
+        return super().available
+
+    @property
+    def extra_state_attributes(self):
+        if self._key == "proximity_peak":
+            attrs = dict(self.panel.proximity_measure or {})
+            attrs["measuring"] = self.panel.measuring
+            return attrs
         return None

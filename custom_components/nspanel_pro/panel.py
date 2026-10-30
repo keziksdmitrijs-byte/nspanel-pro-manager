@@ -36,9 +36,12 @@ from .const import (
     DEFAULT_SETTINGS,
     DOMAIN,
     EWELINK_BACK_SERVICE,
+    PROXIMITY_INPUT,
+    PROXIMITY_MEASURE_SECONDS,
     SET_BRIGHTNESS,
     SET_DIM_BRIGHTNESS,
     SET_NIGHTLY_REBOOT,
+    SET_PROXIMITY_THRESHOLD,
     SET_REBOOT_TIME,
     SET_SCREENSAVER,
     SET_SCREENSAVER_TIMEOUT,
@@ -61,7 +64,8 @@ STATUS_CMD = (
     "echo \"IP=$(ip -4 addr show wlan0 2>/dev/null | grep -o 'inet [0-9.]*' | cut -d' ' -f2)\";"
     'echo "C=$(settings get secure enabled_accessibility_services)";'
     'echo "P=$(settings get global policy_control)";'
-    "echo \"F=$(dumpsys window windows | grep -m1 mCurrentFocus | grep -o 'u0 [^/ ]*' | cut -d' ' -f2)\""
+    "echo \"F=$(dumpsys window windows | grep -m1 mCurrentFocus | grep -o 'u0 [^/ ]*' | cut -d' ' -f2)\";"
+    "echo \"PX=$(dumpsys sensorservice | grep -A1 'Proximity sensor: last' | tail -1 | sed -E 's/.*[)] ([0-9.]+),.*/\\1/')\""
 )
 
 
@@ -146,6 +150,7 @@ class PanelStatus:
     circle: bool | None = None
     immersive: bool | None = None
     foreground: str | None = None
+    proximity: float | None = None
     extra: dict[str, Any] = field(default_factory=dict)
 
 
@@ -164,6 +169,8 @@ class NSPanel:
         self._updates = 0
         self.provisioning = False
         self.last_provision: str | None = None
+        self.measuring = False
+        self.proximity_measure: dict[str, Any] | None = None
         self.coordinator = DataUpdateCoordinator(
             hass,
             _LOGGER,
@@ -271,6 +278,10 @@ class NSPanel:
         status.circle = "BackButtonService" in kv.get("C", "")
         status.immersive = "immersive" in kv.get("P", "")
         status.foreground = kv.get("F") or None
+        try:
+            status.proximity = float(kv.get("PX", ""))
+        except ValueError:
+            status.proximity = None
 
         if not self._was_online:
             # Panel came back (e.g. after a reboot): re-apply our settings
@@ -297,7 +308,7 @@ class NSPanel:
         elif key == SET_BRIGHTNESS:
             await self.adb.async_shell(self._brightness_cmd())
             await self.async_write_tools_prefs(restart=True)
-        elif key in (SET_DIM_BRIGHTNESS, SET_SCREENSAVER, SET_SCREENSAVER_TIMEOUT):
+        elif key in (SET_DIM_BRIGHTNESS, SET_SCREENSAVER, SET_SCREENSAVER_TIMEOUT, SET_PROXIMITY_THRESHOLD):
             await self.async_write_tools_prefs(restart=True)
         elif key in (SET_REBOOT_TIME, SET_NIGHTLY_REBOOT):
             self._schedule_reboot()
@@ -385,6 +396,44 @@ class NSPanel:
             f"monkey -p {TOOLS_PACKAGE} -c android.intent.category.LAUNCHER 1"
         )
 
+    async def async_measure_proximity(self, seconds: int = PROXIMITY_MEASURE_SECONDS) -> None:
+        """Record raw proximity values for a few seconds (wave a hand meanwhile)."""
+        if self.measuring:
+            return
+        self.measuring = True
+        self.coordinator.async_update_listeners()
+        values: list[float] = []
+        try:
+            if self.info.root:
+                out = await self.adb.async_shell(
+                    f"su 0 timeout {seconds} getevent {PROXIMITY_INPUT} 2>/dev/null; true",
+                    timeout=seconds + 15,
+                )
+                # lines: "0003 0019 00000021" (EV_ABS ABS_DISTANCE value)
+                for match in re.finditer(r"0003 0019 ([0-9a-f]{8})", out):
+                    values.append(float(int(match.group(1), 16)))
+            else:
+                for _ in range(seconds):
+                    out = await self.adb.async_shell(
+                        "dumpsys sensorservice | grep -A10 'Proximity sensor: last'", timeout=10
+                    )
+                    values += [float(v) for v in re.findall(r"\) ([0-9.]+),", out)]
+                    await asyncio.sleep(1)
+        finally:
+            self.measuring = False
+        if values:
+            idle = sorted(values)[(len(values) - 1) // 2]
+            self.proximity_measure = {
+                "max": max(values),
+                "min": min(values),
+                "idle": idle,
+                "samples": len(values),
+                # halfway between background noise and the hand
+                "suggested_threshold": round(idle + (max(values) - idle) / 2),
+                "measured_at": dt_util.utcnow().isoformat(timespec="seconds"),
+            }
+        self.coordinator.async_update_listeners()
+
     # ------------------------------------------------------------ nightly reboot
     @callback
     def _schedule_reboot(self) -> None:
@@ -460,6 +509,7 @@ class NSPanel:
             "mqtt-command": ("boolean", True),
             "mqtt-ha-integration": ("boolean", True),
             "mqtt-ha-topic-prefix": ("string", "homeassistant"),
+            "proximity-sensor-threshold": ("int", int(self.settings.get(SET_PROXIMITY_THRESHOLD) or 0)),
         }
         if "mqtt-client-id" not in existing or existing["mqtt-client-id"].text in (None, "", "nspanelpro"):
             managed["mqtt-client-id"] = ("string", f"nspanelpro-{serial_tail}")

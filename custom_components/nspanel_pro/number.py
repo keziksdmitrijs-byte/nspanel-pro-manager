@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 from homeassistant.components.number import NumberEntity, NumberMode
-from homeassistant.const import PERCENTAGE, UnitOfTime
+from homeassistant.const import PERCENTAGE, EntityCategory, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .adb import AdbError
-from .const import SET_BRIGHTNESS, SET_DIM_BRIGHTNESS, SET_SCREENSAVER_TIMEOUT
+from .const import SET_BRIGHTNESS, SET_DIM_BRIGHTNESS, SET_PROXIMITY_THRESHOLD, SET_SCREENSAVER_TIMEOUT
 from .entity import NSPanelEntity
 from .panel import NSPanel
 
@@ -18,6 +18,7 @@ NUMBERS = (
     (SET_BRIGHTNESS, "mdi:brightness-6", 5, 100, 1, PERCENTAGE, NumberMode.SLIDER),
     (SET_DIM_BRIGHTNESS, "mdi:brightness-4", 1, 60, 1, PERCENTAGE, NumberMode.SLIDER),
     (SET_SCREENSAVER_TIMEOUT, "mdi:timer-outline", 15, 1800, 15, UnitOfTime.SECONDS, NumberMode.BOX),
+    (SET_PROXIMITY_THRESHOLD, "mdi:hand-wave", 0, 5000, 1, None, NumberMode.BOX),
 )
 
 
@@ -40,6 +41,8 @@ class NSPanelNumber(NSPanelEntity, NumberEntity):
         self._attr_native_step = step
         self._attr_native_unit_of_measurement = unit
         self._attr_mode = mode
+        if key == SET_PROXIMITY_THRESHOLD:
+            self._attr_entity_category = EntityCategory.CONFIG
 
     @property
     def available(self) -> bool:

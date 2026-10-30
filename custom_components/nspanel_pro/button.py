@@ -34,6 +34,12 @@ BUTTONS: tuple[NSPanelButtonDescription, ...] = (
         key="open_tools", icon="mdi:tools", entity_category=EntityCategory.CONFIG, press=lambda p: p.async_open_tools()
     ),
     NSPanelButtonDescription(
+        key="measure_proximity",
+        icon="mdi:hand-wave-outline",
+        entity_category=EntityCategory.CONFIG,
+        press=lambda p: p.async_measure_proximity(),
+    ),
+    NSPanelButtonDescription(
         key="provision",
         icon="mdi:auto-fix",
         entity_category=EntityCategory.CONFIG,
@@ -59,8 +65,10 @@ class NSPanelButton(NSPanelEntity, ButtonEntity):
         self.entity_description = description
 
     async def async_press(self) -> None:
-        if self.entity_description.key == "provision":
-            self.hass.async_create_background_task(self.panel.async_provision(), "nspanel_pro provision")
+        if self.entity_description.key in ("provision", "measure_proximity"):
+            self.hass.async_create_background_task(
+                self.entity_description.press(self.panel), f"nspanel_pro {self.entity_description.key}"
+            )
             return
         try:
             await self.entity_description.press(self.panel)

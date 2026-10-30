@@ -50,6 +50,7 @@ SET_BRIGHTNESS: Final = "brightness"
 SET_DIM_BRIGHTNESS: Final = "dim_brightness"
 SET_SCREENSAVER: Final = "screensaver"
 SET_SCREENSAVER_TIMEOUT: Final = "screensaver_timeout"
+SET_PROXIMITY_THRESHOLD: Final = "proximity_threshold"
 
 DEFAULT_SETTINGS: Final = {
     SET_SYSTEM_CONTROLS: False,
@@ -59,7 +60,11 @@ DEFAULT_SETTINGS: Final = {
     SET_DIM_BRIGHTNESS: 9,
     SET_SCREENSAVER: True,
     SET_SCREENSAVER_TIMEOUT: 60,
+    SET_PROXIMITY_THRESHOLD: 0,  # 0 = NSPanel Pro Tools default
 }
+
+PROXIMITY_INPUT: Final = "/dev/input/event4"
+PROXIMITY_MEASURE_SECONDS: Final = 10
 
 # NSPanel Pro Tools only accepts these display-sleep timeouts (ms)
 TOOLS_TIMEOUTS_MS: Final = [15000, 30000, 60000, 120000, 300000, 600000, 1800000]

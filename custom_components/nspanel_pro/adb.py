@@ -52,6 +52,10 @@ async def async_get_signer(hass: HomeAssistant) -> PythonRSASigner:
         return _SIGNER
 
 
+def _is_timeout(err: Exception) -> bool:
+    return isinstance(err, (TimeoutError, asyncio.TimeoutError)) or "timed out" in str(err).lower() or "timeout" in type(err).__name__.lower()
+
+
 class NSPanelAdb:
     """Serialised ADB access to one panel."""
 
@@ -110,7 +114,10 @@ class NSPanelAdb:
                     await self._connect(1.0)
                     assert self._device is not None
                     out = await self._device.shell(
-                        command, read_timeout_s=timeout, timeout_s=timeout + 5
+                        command,
+                        transport_timeout_s=timeout,
+                        read_timeout_s=timeout,
+                        timeout_s=timeout + 5,
                     )
                     return (out or "").strip() if isinstance(out, str) else str(out)
                 except AdbError:
@@ -119,7 +126,9 @@ class NSPanelAdb:
                     _LOGGER.debug("ADB shell failed (attempt %s): %s", attempt, err)
                     await self._safe_close(self._device)
                     self._device = None
-                    if attempt == 2:
+                    # Retry only when a stale connection broke; a command that
+                    # timed out may already have run, so it is not repeated.
+                    if attempt == 2 or _is_timeout(err):
                         raise AdbError(f"Command failed on {self.host}: {err}") from err
         return ""
 
@@ -136,7 +145,9 @@ class NSPanelAdb:
             await self._connect(1.0)
             assert self._device is not None
             try:
-                await self._device.push(local_path, device_path, read_timeout_s=120)
+                await self._device.push(
+                    local_path, device_path, transport_timeout_s=120, read_timeout_s=120
+                )
             except Exception as err:  # noqa: BLE001
                 await self._safe_close(self._device)
                 self._device = None
